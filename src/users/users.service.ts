@@ -106,16 +106,15 @@ export class UsersService {
     if (updateUserDto.LastName) {
       updateReq.LastName = updateUserDto.LastName;
     }
-    if (updateUserDto.phoneNumber) {
-      updateReq.phoneNumber = updateUserDto.phoneNumber;
-    }
     if (
       updateUserDto.phoneNumber &&
       typeof updateUserDto.phoneNumber !== 'number'
     ) {
       throw new HttpException('Invalid properties', HttpStatus.BAD_REQUEST);
     }
-
+    if (updateUserDto.phoneNumber) {
+      updateReq.phoneNumber = updateUserDto.phoneNumber;
+    }
     if (updateUserDto.gender) {
       updateReq.gender = updateUserDto.gender;
     }
