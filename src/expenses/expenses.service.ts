@@ -92,11 +92,14 @@ export class ExpenseService {
       updateExpenseDto.quantity &&
       typeof updateExpenseDto.quantity !== 'number'
     ) {
-      throw new HttpException('Quantity should be num', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Quantity should be a number',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (updateExpenseDto.price && typeof updateExpenseDto.price !== 'number') {
-      throw new BadRequestException('Price should be num');
+      throw new BadRequestException('Price should be a number');
     }
 
     const updatedQuantity =
