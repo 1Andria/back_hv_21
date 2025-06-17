@@ -1,13 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   await app.listen(process.env.PORT ?? 3005);
 }
 bootstrap();
 
-// 3) უნდა გქონდეთ იქსფენსების მოდული სადაც გააკეთებთ ქრადის ტიპის ოპერაციებს.
-// თითეულ იქსფენსს უნდა ქონდეს შემდეგი ტიპის ფროფერთიები:
-// id-ეს სისტემამ უნდა მიანიჭოს ავტომატურად როგორც შვებით ხოლმე. category, productName, quantity, price, totalPrice-ეს ავტომატურად უნდა გამოითვალოს რაოდენობის და ფასის ხარჯზე.
-// ორივე ინფორმაცია შეინახეთ ცვლადებში როგორც ლექციაზე ვქენით
+// 5) დაამატეთ query-ით ფილტრები ასევე ხარჯებზე, კატეგორით მაგალითად, priceFrom. priceTo

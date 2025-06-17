@@ -6,17 +6,25 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ExpenseService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { QueryParamsDto } from './dto/query-params.dto';
+import { CategoryPipe } from './pipes/category.pipe';
 
 @Controller('expenses')
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
   @Get()
-  getAllExpenses() {
-    return this.expenseService.getAllExpenses();
+  getAllExpenses(
+    @Query('category', new CategoryPipe()) category: string,
+    @Query('priceFrom') priceFrom,
+    @Query('priceTo') priceTo,
+    @Query() { page, take }: QueryParamsDto,
+  ) {
+    return this.expenseService.getAllExpenses(page, take, priceFrom, priceTo);
   }
 
   @Get(':id')

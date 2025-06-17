@@ -16,7 +16,7 @@ export class UsersService {
       LastName: 'user1shvili',
       email: 'user1.com',
       phoneNumber: 557,
-      gender: 'man',
+      gender: 'male',
     },
     {
       id: 2,
@@ -24,7 +24,7 @@ export class UsersService {
       LastName: 'user2shvili',
       email: 'user2.com',
       phoneNumber: 558,
-      gender: 'woman',
+      gender: 'female',
     },
     {
       id: 3,
@@ -32,12 +32,33 @@ export class UsersService {
       LastName: 'user3shvili',
       email: 'user3.com',
       phoneNumber: 559,
-      gender: 'man',
+      gender: 'male',
     },
   ];
 
-  getAllUsers() {
-    return this.users;
+  getAllUsers(page: number, take: number, gender: string, email: string) {
+    let filteredUsers = this.users;
+    if (gender) {
+      filteredUsers = filteredUsers.filter((user) =>
+        user.gender.startsWith(gender),
+      );
+    }
+    if (email) {
+      filteredUsers = filteredUsers.filter((user) =>
+        user.email.startsWith(email),
+      );
+    }
+
+    const start = (page - 1) * take;
+    const end = page * take;
+    const paginated = filteredUsers.slice(start, end);
+    const total = filteredUsers.length;
+
+    return {
+      data: paginated,
+      total,
+      page,
+    };
   }
 
   getUserById(id: number) {
@@ -55,20 +76,6 @@ export class UsersService {
     phoneNumber,
     gender,
   }: CreateUserDto) {
-    if (
-      !email ||
-      !FirstName ||
-      !LastName ||
-      !phoneNumber ||
-      !gender ||
-      typeof phoneNumber !== 'number'
-    ) {
-      throw new HttpException(
-        'required fields missing or invalid properties',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const lastId = this.users[this.users.length - 1]?.id || 0;
 
     const newUser = {

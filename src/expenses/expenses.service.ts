@@ -28,8 +28,34 @@ export class ExpenseService {
     },
   ];
 
-  getAllExpenses() {
-    return this.expenses;
+  getAllExpenses(
+    page: number,
+    take: number,
+    priceFrom: number,
+    priceTo: number,
+  ) {
+    let filtered = this.expenses;
+
+    if (priceFrom) {
+      filtered = filtered.filter((el) => el.price >= priceFrom);
+    }
+
+    if (priceTo) {
+      filtered = filtered.filter((el) => el.price <= priceTo);
+    }
+
+    const start = (page - 1) * take;
+    const end = page * take;
+
+    const paginatedItems = filtered.slice(start, end);
+
+    const total = filtered.length;
+
+    return {
+      data: paginatedItems,
+      total,
+      page,
+    };
   }
 
   getExpenseById(id: number) {
@@ -39,19 +65,6 @@ export class ExpenseService {
   }
 
   createExpense({ category, productName, quantity, price }: CreateExpenseDto) {
-    if (
-      !category ||
-      !productName ||
-      !quantity ||
-      !price ||
-      typeof quantity !== 'number' ||
-      typeof price !== 'number'
-    ) {
-      throw new BadRequestException(
-        'Missing required fields or invalid properties',
-      );
-    }
-
     const lastId = this.expenses[this.expenses.length - 1]?.id || 0;
 
     const newExpense = {
