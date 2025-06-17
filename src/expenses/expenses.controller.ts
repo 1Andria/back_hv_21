@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -28,8 +29,8 @@ export class ExpenseController {
   }
 
   @Get(':id')
-  getExpenseById(@Param('id') id) {
-    return this.expenseService.getExpenseById(Number(id));
+  getExpenseById(@Param('id', ParseIntPipe) id) {
+    return this.expenseService.getExpenseById(id);
   }
 
   @Post()
@@ -48,15 +49,15 @@ export class ExpenseController {
   }
 
   @Delete(':id')
-  deleteExpenseById(@Param('id') id) {
-    return this.expenseService.deleteExpense(Number(id));
+  deleteExpenseById(@Param('id', ParseIntPipe) id) {
+    return this.expenseService.deleteExpense(id);
   }
 
   @Put(':id')
   updateExpenseById(
-    @Param('id') id,
+    @Param('id', ParseIntPipe) id,
     @Body() updateExpenseDto: UpdateExpenseDto,
   ) {
-    return this.expenseService.updateExpense(Number(id), updateExpenseDto);
+    return this.expenseService.updateExpense(id, updateExpenseDto);
   }
 }
