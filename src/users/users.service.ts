@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dtp';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
-  private users = [
+  private users: User[] = [
     {
       id: 1,
       FirstName: 'user1',
@@ -17,6 +18,8 @@ export class UsersService {
       email: 'user1.com',
       phoneNumber: 557,
       gender: 'male',
+      subscriptionStartDate: new Date('2025-06-22T13:32:08.824Z'),
+      subscriptionEndDate: new Date('2025-07-22T13:32:08.824Z'),
     },
     {
       id: 2,
@@ -25,6 +28,8 @@ export class UsersService {
       email: 'user2.com',
       phoneNumber: 558,
       gender: 'female',
+      subscriptionStartDate: new Date('2025-02-22T13:32:08.824Z'),
+      subscriptionEndDate: new Date('2025-03-22T13:32:08.824Z'),
     },
     {
       id: 3,
@@ -33,6 +38,8 @@ export class UsersService {
       email: 'user3.com',
       phoneNumber: 559,
       gender: 'male',
+      subscriptionStartDate: new Date('2025-01-22T13:32:08.824Z'),
+      subscriptionEndDate: new Date('2025-02-22T13:32:08.824Z'),
     },
   ];
 
@@ -77,6 +84,10 @@ export class UsersService {
     gender,
   }: CreateUserDto) {
     const lastId = this.users[this.users.length - 1]?.id || 0;
+    const subscriptionStartDate = new Date();
+    const subscriptionEndDate = new Date(
+      new Date().setMonth(new Date().getMonth() + 1),
+    );
 
     const newUser = {
       id: lastId + 1,
@@ -85,6 +96,8 @@ export class UsersService {
       phoneNumber,
       gender,
       email,
+      subscriptionStartDate,
+      subscriptionEndDate,
     };
     this.users.push(newUser);
     return 'created successfully';
@@ -131,5 +144,27 @@ export class UsersService {
       ...updateReq,
     };
     return 'Updated successfully';
+  }
+
+  findUserByEmail(email: string) {
+    return this.users.find((el) => el.email === email);
+  }
+
+  upgradeSubscription(id: number) {
+    const index = this.users.findIndex((el) => el.id === id);
+    if (index === -1) throw new NotFoundException('User not found');
+    const user = this.users[index];
+
+    const now = new Date();
+    const currentEndDate = new Date(user.subscriptionEndDate);
+    const upgradeDate = currentEndDate > now ? currentEndDate : now;
+
+    user.subscriptionEndDate = new Date(
+      upgradeDate.setMonth(upgradeDate.getMonth() + 1),
+    );
+
+    return {
+      message: 'Subscription upgraded successfully',
+    };
   }
 }

@@ -14,6 +14,7 @@ import { CreateUserDto } from './dto/create-user.dtp';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUserParamDto } from './dto/query-params.dto';
 import { GenderPipe } from './pipes/gender.pipe';
+import { UpgradeSubscriptionDto } from './dto/endDate-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -26,8 +27,6 @@ export class UsersController {
     @Query()
     { page, take }: QueryUserParamDto,
   ) {
-    console.log(gender);
-
     return this.usersService.getAllUsers(page, take, gender, email);
   }
 
@@ -64,5 +63,10 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.updateUserById(id, updateUserDto);
+  }
+
+  @Put('/upgrade-subscription/:id')
+  upgradeSubscription(@Param('id', ParseIntPipe) id) {
+    return this.usersService.upgradeSubscription(id);
   }
 }
