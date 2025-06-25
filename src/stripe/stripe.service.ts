@@ -89,12 +89,12 @@ export class StripeService {
       const data = event.data.object as Stripe.PaymentIntent;
       const amount = data.amount_received / 100;
 
-      await this.expenseService.createExpense({
-        category: 'Stripe Payment',
-        productName: 'Purchase',
-        quantity: 1,
-        price: amount,
-      });
+      // await this.expenseService.createExpense({
+      //   category: 'Stripe Payment',
+      //   productName: 'Purchase',
+      //   quantity: 1,
+      //   price: amount,
+      // });
 
       console.log('Payment was successful and was added to expenses');
     }

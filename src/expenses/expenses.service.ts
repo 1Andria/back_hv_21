@@ -7,111 +7,145 @@ import {
 } from '@nestjs/common';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Expense } from './schema/expense.schema';
+import { isValidObjectId, Model, Types } from 'mongoose';
+import { User } from 'src/users/entities/user.entity';
 @Injectable()
 export class ExpenseService {
-  private expenses = [
-    {
-      id: 1,
-      category: 'Shopping',
-      productName: 'Shoes',
-      quantity: 6,
-      price: 30,
-      totalPrice: 180,
-    },
-    {
-      id: 2,
-      category: 'Groceries',
-      productName: 'meat',
-      quantity: 4,
-      price: 40,
-      totalPrice: 160,
-    },
-  ];
+  constructor(
+    @InjectModel('expense') private readonly expenseModel: Model<Expense>,
+    @InjectModel('user') private readonly userModel: Model<User>,
+  ) {}
 
-  getAllExpenses(
+  async getAllExpenses(
     page: number,
     take: number,
-    priceFrom: number,
-    priceTo: number,
+    priceFrom?: number,
+    priceTo?: number,
+    category?: string,
   ) {
-    let filtered = this.expenses;
+    const filter: any = {};
 
-    if (priceFrom) {
-      filtered = filtered.filter((el) => el.price >= priceFrom);
+    if (priceFrom !== undefined) {
+      filter.price = { ...(filter.price || {}), $gte: priceFrom };
     }
 
-    if (priceTo) {
-      filtered = filtered.filter((el) => el.price <= priceTo);
+    if (priceTo !== undefined) {
+      filter.price = { ...(filter.price || {}), $lte: priceTo };
     }
 
-    const start = (page - 1) * take;
-    const end = page * take;
+    if (category) {
+      filter.category = { $regex: `^${category}`, $options: 'i' };
+    }
 
-    const paginatedItems = filtered.slice(start, end);
+    const skip = (page - 1) * take;
 
-    const total = filtered.length;
+    const data = await this.expenseModel
+      .find(filter)
+      .populate({ path: 'userId', select: 'email FirstName' })
+      .skip(skip)
+      .limit(take);
+    const total = await this.expenseModel.countDocuments(filter);
 
     return {
-      data: paginatedItems,
+      data,
       total,
       page,
     };
   }
 
-  getExpenseById(id: number) {
-    const expense = this.expenses.find((el) => el.id === id);
-    if (!expense) throw new NotFoundException('Expense not found');
+  async getExpenseById(id) {
+    if (!isValidObjectId(id)) {
+      throw new HttpException('Expense ID provided', HttpStatus.BAD_REQUEST);
+    }
+    const expense = await this.expenseModel.findById(id);
+    if (!expense) {
+      throw new HttpException('expense not found ', HttpStatus.NOT_FOUND);
+    }
     return expense;
   }
 
-  createExpense({ category, productName, quantity, price }: CreateExpenseDto) {
-    const lastId = this.expenses[this.expenses.length - 1]?.id || 0;
+  async createExpense(
+    { category, productName, quantity, price }: CreateExpenseDto,
+    user: string,
+  ) {
+    const existUser = await this.userModel.findById(user);
+    if (!existUser) {
+      throw new BadRequestException('User not found');
+    }
 
-    const newExpense = {
-      id: lastId + 1,
+    const totalPrice = quantity * price;
+    const newExpense = await this.expenseModel.create({
       category,
       productName,
       quantity,
       price,
-      totalPrice: price * quantity,
-    };
+      totalPrice: totalPrice,
+      userId: existUser._id,
+    });
 
-    this.expenses.push(newExpense);
+    await this.userModel.findByIdAndUpdate(existUser._id, {
+      $push: { expenses: newExpense._id },
+    });
 
-    return 'Expense created successfully';
+    return { success: 'ok', data: newExpense };
   }
 
-  deleteExpense(id: number) {
-    const index = this.expenses.findIndex((el) => el.id === id);
-    if (index === -1) throw new NotFoundException('User not found');
-    this.expenses.splice(index, 1);
-    return 'Expense deleted successfully';
+  async deleteExpense(id: string, user: string) {
+    const expense = await this.expenseModel.findById(id);
+
+    if (!expense) {
+      throw new NotFoundException('Expense not found');
+    }
+
+    if (expense.userId.toString() !== user) {
+      throw new BadRequestException('It is not your expense');
+    }
+
+    await this.expenseModel.findByIdAndDelete(id);
+
+    await this.userModel.findByIdAndUpdate(user, {
+      $pull: { expenses: new Types.ObjectId(id) },
+    });
+    return 'Deleted successfully';
   }
 
-  updateExpense(id: number, updateExpenseDto: UpdateExpenseDto) {
-    const index = this.expenses.findIndex((el) => el.id === id);
-    if (index === -1) throw new NotFoundException('User not found');
-    const existingExpense = this.expenses[index];
+  async updateExpense(
+    id: string,
+    updateExpenseDto: UpdateExpenseDto,
+    user: string,
+  ) {
+    const existingExpense = await this.expenseModel.findById(id);
+    if (!existingExpense) {
+      throw new NotFoundException('Expense not found');
+    }
 
-    const updateReq: UpdateExpenseDto = {};
+    if (existingExpense.userId.toString() !== user) {
+      throw new BadRequestException('It is not your expense');
+    }
+
+    const updateReq: Partial<UpdateExpenseDto & { totalPrice: number }> = {};
 
     if (updateExpenseDto.category) {
       updateReq.category = updateExpenseDto.category;
     }
+
     if (updateExpenseDto.productName) {
       updateReq.productName = updateExpenseDto.productName;
     }
+
     if (
-      updateExpenseDto.quantity &&
+      updateExpenseDto.quantity !== undefined &&
       typeof updateExpenseDto.quantity !== 'number'
     ) {
-      throw new HttpException(
-        'Quantity should be a number',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Quantity should be a number');
     }
 
-    if (updateExpenseDto.price && typeof updateExpenseDto.price !== 'number') {
+    if (
+      updateExpenseDto.price !== undefined &&
+      typeof updateExpenseDto.price !== 'number'
+    ) {
       throw new BadRequestException('Price should be a number');
     }
 
@@ -122,10 +156,7 @@ export class ExpenseService {
     updateReq.price = updatedPrice;
     updateReq.totalPrice = updatedQuantity * updatedPrice;
 
-    this.expenses[index] = {
-      ...this.expenses[index],
-      ...updateReq,
-    };
+    await this.expenseModel.findByIdAndUpdate(id, updateReq);
 
     return 'Expense updated successfully';
   }

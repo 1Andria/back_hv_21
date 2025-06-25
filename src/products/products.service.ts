@@ -1,100 +1,140 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { isValidObjectId, Model, Types } from 'mongoose';
+import { Product } from './schema/product.schema';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
-  private products = [
-    {
-      id: 1,
-      price: 230,
-      name: 'product 1',
-      description: 'product 1 description',
-      category: 'product 1 category',
-      quantity: 20,
-    },
-  ];
-  create(createProductDto: CreateProductDto) {
-    const lastId = this.products[this.products.length - 1]?.id || 0;
+  constructor(
+    @InjectModel('product') private readonly productModel: Model<Product>,
+    @InjectModel('user') private readonly userModel: Model<User>,
+  ) {}
 
-    const newProduct = {
-      id: lastId + 1,
-      price: createProductDto.price,
-      name: createProductDto.name,
-      description: createProductDto.description,
-      category: createProductDto.category,
-      quantity: createProductDto.quantity,
-    };
+  async create(
+    { category, description, name, price, quantity }: CreateProductDto,
+    userId: string,
+  ) {
+    const existUser = await this.userModel.findById(userId);
+    if (!existUser) {
+      throw new BadRequestException('User not found');
+    }
+    const newProduct = await this.productModel.create({
+      category,
+      description,
+      name,
+      price,
+      quantity,
+      owner: existUser._id,
+    });
 
-    this.products.push(newProduct);
-
-    return 'Created successfully';
+    await this.userModel.findByIdAndUpdate(existUser._id, {
+      $push: { products: newProduct._id },
+    });
+    return { success: 'ok', data: newProduct };
   }
 
-  findAll(subscriptionActive: boolean) {
+  async findAll(subscriptionActive: boolean) {
+    console.log(subscriptionActive);
+
+    const products = await this.productModel
+      .find()
+      .populate({ path: 'owner', select: 'FirstName email' });
+
     if (subscriptionActive) {
-      return this.products.map((product) => ({
-        ...product,
+      return products.map((product) => ({
+        ...product.toObject(),
         price: product.price / 2,
         discount: 'congrats u have discount',
       }));
     }
-    return this.products;
+
+    return products;
   }
 
-  findOne(id: number) {
-    const product = this.products.find((el) => el.id === id);
+  async findOne(id: string, subscriptionActive: boolean) {
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException('Id is invalid');
+    }
+
+    const product = await this.productModel
+      .findById(id)
+      .populate({ path: 'owner', select: 'FirstName email' });
     if (!product) {
       throw new NotFoundException('Product not found');
+    }
+
+    if (subscriptionActive) {
+      return {
+        ...product.toObject(),
+        price: product.price / 2,
+        discount: 'congrats u have discount',
+      };
     }
 
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    const index = this.products.findIndex((el) => el.id === id);
-    if (index === -1) {
+  async update(id: string, updateProductDto: UpdateProductDto, userId: string) {
+    const existProduct = await this.productModel.findById(id);
+    if (!existProduct) {
       throw new NotFoundException('Product not found');
     }
-
-    const updateReq: UpdateProductDto = {};
-
-    if (updateProductDto.price) {
-      updateReq.price = updateProductDto.price;
+    if (existProduct.owner.toString() !== userId) {
+      throw new BadRequestException('It is not your product');
     }
 
-    if (updateProductDto.name) {
-      updateReq.name = updateProductDto.name;
-    }
-
+    const updateReq: Partial<UpdateProductDto> = {};
     if (updateProductDto.category) {
       updateReq.category = updateProductDto.category;
     }
-
     if (updateProductDto.description) {
       updateReq.description = updateProductDto.description;
     }
+    if (updateProductDto.name) {
+      updateReq.name = updateProductDto.name;
+    }
+    if (updateProductDto.price !== undefined) {
+      updateReq.price = updateProductDto.price;
+    }
 
-    if (updateProductDto.quantity) {
+    if (updateProductDto.quantity !== undefined) {
       updateReq.quantity = updateProductDto.quantity;
     }
 
-    console.log(updateReq);
-
-    this.products[index] = {
-      ...this.products[index],
-      ...updateReq,
+    const updatedProduct = await this.productModel.findByIdAndUpdate(
+      id,
+      updateReq,
+      { new: true },
+    );
+    return {
+      message: 'ok',
+      product: updatedProduct,
     };
-
-    return `Updated successfully`;
   }
 
-  remove(id: number) {
-    const index = this.products.findIndex((el) => el.id === id);
-    if (index === -1) {
+  async remove(id: string, userId: string) {
+    const product = await this.productModel.findById(id);
+
+    if (!product) {
       throw new NotFoundException('Product not found');
     }
-    this.products.splice(index, 1);
+
+    if (product.owner.toString() !== userId) {
+      throw new BadRequestException('It is not your product');
+    }
+
+    await this.productModel.findByIdAndDelete(id);
+
+    await this.userModel.findByIdAndUpdate(userId, {
+      $pull: { products: new Types.ObjectId(id) },
+    });
     return `Product deleted successfully `;
   }
 }
