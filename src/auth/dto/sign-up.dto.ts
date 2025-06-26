@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
 
-export class CreateUserDto {
+export class signUpDto {
   @IsNotEmpty()
   @IsString()
   FirstName: string;
@@ -12,6 +12,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   email: string;
+
   @IsNotEmpty()
   @IsNumber()
   phoneNumber: number;
@@ -19,4 +20,9 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   gender: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 20)
+  password: string;
 }

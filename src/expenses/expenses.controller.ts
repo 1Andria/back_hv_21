@@ -17,7 +17,9 @@ import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { QueryParamsDto } from './dto/query-params.dto';
 import { CategoryPipe } from './pipes/category.pipe';
 import { HasUserId } from '../common/guards/has-user-id.guard';
+import { IsAuthGuard } from 'src/auth/guards/isAuth.guard';
 
+@UseGuards(IsAuthGuard)
 @Controller('expenses')
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -37,6 +38,7 @@ export class UsersController {
 
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
+    throw new BadRequestException('U should sign-up');
     const email = createUserDto?.email;
     const FirstName = createUserDto?.FirstName;
     const LastName = createUserDto?.LastName;
