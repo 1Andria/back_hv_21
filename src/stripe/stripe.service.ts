@@ -61,8 +61,6 @@ export class StripeService {
   }
 
   async createStripeCustomerId(userId, userEmail) {
-    console.log('shemovida');
-
     const customer = await this.stripe.customers.create({ email: userEmail });
     await this.userModel.findByIdAndUpdate(
       userId,
@@ -74,7 +72,8 @@ export class StripeService {
 
   async webHook(headers, body) {
     const sig = headers['stripe-signature'];
-    let event!: Stripe.Event;
+    let event: Stripe.Event;
+
     try {
       event = this.stripe.webhooks.constructEvent(
         body,
@@ -82,21 +81,31 @@ export class StripeService {
         process.env.WEBHOOK_API_SECRET as string,
       );
     } catch (err) {
-      new BadRequestException('error');
+      throw new BadRequestException(`Webhook Error: ${err.message}`);
     }
 
-    if (event.type === 'payment_intent.succeeded') {
-      const data = event.data.object as Stripe.PaymentIntent;
-      const amount = data.amount_received / 100;
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const userId = session.metadata?.userId;
+      const amountTotal = session.amount_total;
 
-      // await this.expenseService.createExpense({
-      //   category: 'Stripe Payment',
-      //   productName: 'Purchase',
-      //   quantity: 1,
-      //   price: amount,
-      // });
+      if (!userId || !amountTotal) {
+        throw new BadRequestException('Missing metadata in checkout session');
+      }
 
-      console.log('Payment was successful and was added to expenses');
+      const amount = amountTotal / 100;
+
+      await this.expenseService.createExpense(
+        {
+          category: 'Stripe Payment',
+          productName: 'Purchase',
+          quantity: 1,
+          price: amount,
+        },
+        userId,
+      );
+
+      console.log('Expense created successfully from Stripe webhook');
     }
   }
 }
