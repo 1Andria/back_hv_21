@@ -5,18 +5,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dtp';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IUser } from './interfaces/user.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { User } from './entities/user.entity';
+import { ChangeUserRoleDto } from './dto/changeUserRole.dto';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('user') private readonly userModel: Model<User>) {}
 
   async getAllUsers(page: number, take: number, gender: string, email: string) {
+    console.log(this.userModel);
+
     const filter: any = {};
 
     if (gender) {
@@ -59,33 +61,6 @@ export class UsersService {
       throw new HttpException('User not found ', HttpStatus.NOT_FOUND);
     }
     return user;
-  }
-
-  async createUser({
-    email,
-    FirstName,
-    LastName,
-    phoneNumber,
-    gender,
-  }: CreateUserDto) {
-    const existUser = await this.userModel.findOne({ email });
-    if (existUser) {
-      throw new BadRequestException('Email already in use');
-    }
-    const subscriptionStartDate = new Date();
-    const subscriptionEndDate = new Date(
-      new Date().setMonth(new Date().getMonth() + 1),
-    );
-    const newUser = await this.userModel.create({
-      email,
-      FirstName,
-      LastName,
-      phoneNumber,
-      gender,
-      subscriptionStartDate,
-      subscriptionEndDate,
-    });
-    return 'created successfully';
   }
 
   async deleteUserById(id: string) {
@@ -155,5 +130,21 @@ export class UsersService {
       message: 'Subscription upgraded successfully',
       newEndDate,
     };
+  }
+
+  async changeUserRole(userId: string, { targetUserEmail }: ChangeUserRoleDto) {
+    const isUserAdmin = await this.userModel.findById(userId);
+    if (isUserAdmin?.role !== 'admin') {
+      throw new BadRequestException('You are not admin so u cant change role');
+    }
+    const targetUser = await this.userModel.findOne({ email: targetUserEmail });
+    if (!targetUser || targetUser.role === 'admin') {
+      throw new BadRequestException('User not found or already is admin');
+    }
+    if (isUserAdmin.role === 'admin' && targetUser.role !== 'admin') {
+      targetUser.role = 'admin';
+      await targetUser.save();
+    }
+    return 'Role changed successfully';
   }
 }

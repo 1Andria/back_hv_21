@@ -13,7 +13,7 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { IsEmailActiveGuard } from 'src/guards/isEmailActive.guard';
+import { IsEmailActiveGuard } from 'src/common/guards/isEmailActive.guard';
 import { HasUserId } from 'src/common/guards/has-user-id.guard';
 
 @Controller('products')

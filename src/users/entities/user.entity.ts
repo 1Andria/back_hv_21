@@ -13,6 +13,12 @@ export class User {
 
   @Prop({
     type: String,
+    default: 'user',
+  })
+  role: string;
+
+  @Prop({
+    type: String,
     required: true,
     select: false,
   })

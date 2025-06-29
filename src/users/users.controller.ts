@@ -1,14 +1,13 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
-  ParseIntPipe,
-  Post,
+  Patch,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dtp';
@@ -16,6 +15,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUserParamDto } from './dto/query-params.dto';
 import { GenderPipe } from './pipes/gender.pipe';
 import { UpgradeSubscriptionDto } from './dto/endDate-user.dto';
+import { IsAuthGuard } from 'src/common/guards/isAuth.guard';
+import { UserId } from './decorators/user.decorator';
+import { ChangeUserRoleDto } from './dto/changeUserRole.dto';
 
 @Controller('users')
 export class UsersController {
@@ -36,27 +38,18 @@ export class UsersController {
     return this.usersService.getUserById(id);
   }
 
-  @Post()
-  createUser(@Body() createUserDto: CreateUserDto) {
-    throw new BadRequestException('U should sign-up');
-    const email = createUserDto?.email;
-    const FirstName = createUserDto?.FirstName;
-    const LastName = createUserDto?.LastName;
-    const gender = createUserDto?.gender;
-    const phoneNumber = createUserDto?.phoneNumber;
-
-    return this.usersService.createUser({
-      email,
-      FirstName,
-      LastName,
-      gender,
-      phoneNumber,
-    });
-  }
-
   @Delete(':id')
   deleteUserById(@Param('id') id) {
     return this.usersService.deleteUserById(id);
+  }
+
+  @Patch('/change-role')
+  @UseGuards(IsAuthGuard)
+  changeUserRole(
+    @UserId() userId,
+    @Body() changeUserRoleDto: ChangeUserRoleDto,
+  ) {
+    return this.usersService.changeUserRole(userId, changeUserRoleDto);
   }
 
   @Put(':id')
