@@ -9,7 +9,7 @@ import { User } from 'src/users/entities/user.entity';
 export class AnalyticsService {
   constructor(
     @InjectModel('expense') private readonly expenseModel: Model<Expense>,
-    @InjectModel('expense') private readonly productModel: Model<Product>,
+    @InjectModel('product') private readonly productModel: Model<Product>,
     @InjectModel('user') private readonly userModel: Model<User>,
   ) {}
   async getAllInformation(userId: string) {
@@ -17,9 +17,9 @@ export class AnalyticsService {
     if (!isUserAdmin || isUserAdmin.role !== 'admin') {
       throw new BadRequestException('User not found or is not an admin');
     }
-    const userCount = await this.userModel.countDocuments();
-    const expenseCount = await this.expenseModel.countDocuments();
-    const productCount = await this.productModel.countDocuments();
+    const userCount = await this.userModel.find();
+    const expenseCount = await this.expenseModel.find();
+    const productCount = await this.productModel.find();
     return {
       users: userCount,
       expenses: expenseCount,

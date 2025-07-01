@@ -43,9 +43,11 @@ export class ExpenseService {
 
     const data = await this.expenseModel
       .find(filter)
+      .sort({ _id: -1 })
       .populate({ path: 'userId', select: 'email FirstName' })
       .skip(skip)
       .limit(take);
+
     const total = await this.expenseModel.countDocuments(filter);
 
     return {
@@ -94,12 +96,13 @@ export class ExpenseService {
 
   async deleteExpense(id: string, user: string) {
     const expense = await this.expenseModel.findById(id);
+    const isAdmin = await this.userModel.findById(user);
 
     if (!expense) {
       throw new NotFoundException('Expense not found');
     }
 
-    if (expense.userId.toString() !== user) {
+    if (expense.userId.toString() !== user && isAdmin?.role !== 'admin') {
       throw new BadRequestException('It is not your expense');
     }
 
