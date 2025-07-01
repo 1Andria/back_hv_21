@@ -1,0 +1,8 @@
+export declare class signUpDto {
+    FirstName: string;
+    LastName: string;
+    email: string;
+    phoneNumber: number;
+    gender: string;
+    password: string;
+}
