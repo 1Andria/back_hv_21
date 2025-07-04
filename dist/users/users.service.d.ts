@@ -14,6 +14,7 @@ export declare class UsersService {
         total: number;
         page: number;
     }>;
+    getUserByGender(): Promise<any[]>;
     getUserById(id: string): Promise<import("mongoose").Document<unknown, {}, User, {}> & User & {
         _id: import("mongoose").Types.ObjectId;
     } & {

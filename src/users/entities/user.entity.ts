@@ -43,6 +43,17 @@ export class User {
   phoneNumber: number;
 
   @Prop({
+    type: Number,
+    required: true,
+  })
+  age: number;
+
+  @Prop({
+    type: Boolean,
+  })
+  isActive: boolean;
+
+  @Prop({
     type: String,
     required: true,
   })

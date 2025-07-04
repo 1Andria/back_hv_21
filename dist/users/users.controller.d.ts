@@ -14,6 +14,7 @@ export declare class UsersController {
         total: number;
         page: number;
     }>;
+    getUserByGender(): Promise<any[]>;
     getUserById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
         _id: import("mongoose").Types.ObjectId;
     } & {

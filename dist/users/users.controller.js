@@ -29,6 +29,9 @@ let UsersController = class UsersController {
     getAllUsers(gender, email, { page, take }) {
         return this.usersService.getAllUsers(page, take, gender, email);
     }
+    getUserByGender() {
+        return this.usersService.getUserByGender();
+    }
     getUserById(id) {
         return this.usersService.getUserById(id);
     }
@@ -55,6 +58,12 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, query_params_dto_1.QueryUserParamDto]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getAllUsers", null);
+__decorate([
+    (0, common_1.Get)('gender'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "getUserByGender", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

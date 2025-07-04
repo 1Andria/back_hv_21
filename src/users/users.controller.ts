@@ -33,6 +33,11 @@ export class UsersController {
     return this.usersService.getAllUsers(page, take, gender, email);
   }
 
+  @Get('gender')
+  getUserByGender() {
+    return this.usersService.getUserByGender();
+  }
+
   @Get(':id')
   getUserById(@Param('id') id) {
     return this.usersService.getUserById(id);

@@ -11,10 +11,39 @@ import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { User } from './entities/user.entity';
 import { ChangeUserRoleDto } from './dto/changeUserRole.dto';
+import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('user') private readonly userModel: Model<User>) {}
+
+  // async onModuleInit() {
+  //   const oneWeekAgo = new Date();
+  //   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  //   await this.userModel.updateMany(
+  //     { createdAt: { $gte: oneWeekAgo } },
+  //     { $set: { isActive: true } },
+  //   );
+
+  //   await this.userModel.updateMany(
+  //     { createdAt: { $lt: oneWeekAgo } },
+  //     { $set: { isActive: false } },
+  //   );
+  // }
+
+  // async onModuleInit() {
+  //   const users = await this.userModel.find();
+
+  //   for (let i = 0; i < users.length; i++) {
+  //     const randomAge = faker.number.int({ min: 0, max: 100 });
+
+  //     await this.userModel.updateOne(
+  //       { _id: users[i]._id },
+  //       { $set: { age: randomAge } },
+  //     );
+  //   }
+  // }
 
   async getAllUsers(page: number, take: number, gender: string, email: string) {
     console.log(this.userModel);
@@ -47,6 +76,16 @@ export class UsersService {
       page,
     };
   }
+
+  async getUserByGender() {
+    const users = await this.userModel.aggregate([
+      { $group: { _id: '$gender', averageAge: { $avg: '$age' } } },
+    ]);
+    return users;
+  }
+
+  // 3) დაამატეთ ახალი ენფოინთი იუზერებზე, დააჯგუფეთ ყველა იუზერი სქესის მიხედვით და
+  //  გამოთვალეთ საშუალო ასაკი ორივეში.
 
   async getUserById(id: string) {
     if (!isValidObjectId(id)) {

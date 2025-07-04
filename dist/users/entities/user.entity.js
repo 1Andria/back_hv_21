@@ -19,6 +19,8 @@ let User = class User {
     FirstName;
     LastName;
     phoneNumber;
+    age;
+    isActive;
     gender;
     stripeCustomerId;
     subscriptionStartDate;
@@ -72,6 +74,19 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], User.prototype, "phoneNumber", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({
+        type: Number,
+        required: true,
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "age", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({
+        type: Boolean,
+    }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isActive", void 0);
 __decorate([
     (0, mongoose_1.Prop)({
         type: String,

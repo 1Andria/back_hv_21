@@ -42,6 +42,18 @@ export class ExpenseController {
     );
   }
 
+  @Get('statistic')
+  getByGroup() {
+    return this.expenseService.getExpenseByGroup();
+  }
+
+  @Get('top-spenders')
+  topSpenders(@Query('limit') limitFromQuery: string) {
+    const limit = limitFromQuery ? Number(limitFromQuery) : 30;
+
+    return this.expenseService.topSpenders(limit);
+  }
+
   @Get(':id')
   getExpenseById(@Param('id') id) {
     return this.expenseService.getExpenseById(id);

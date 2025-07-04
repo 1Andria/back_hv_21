@@ -14,6 +14,8 @@ export declare class ExpenseController {
         total: number;
         page: number;
     }>;
+    getByGroup(): Promise<any[]>;
+    topSpenders(limitFromQuery: string): Promise<any[]>;
     getExpenseById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./schema/expense.schema").Expense, {}> & import("./schema/expense.schema").Expense & {
         _id: import("mongoose").Types.ObjectId;
     } & {

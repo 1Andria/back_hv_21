@@ -57,6 +57,42 @@ export class ExpenseService {
     };
   }
 
+  async topSpenders(limit: number) {
+    const product = await this.expenseModel.aggregate([
+      {
+        $group: {
+          _id: '$userId',
+          totalSpent: { $sum: '$price' },
+          totalItemSpent: { $sum: 1 },
+        },
+      },
+      { $sort: { totalSpent: -1 } },
+      { $limit: limit },
+    ]);
+    return product;
+  }
+  // 4) ხარჯებზე დაამატეთ ახალი ენდფოინთი /expenses/top-spenders?limit=10 სადაც იუზერებს დააჯგუფებთ userId ების მიხედვით და დაუთვლით მთლიანად რამდენი აქვს დახარჯული.
+
+  async getExpenseByGroup() {
+    const product = await this.expenseModel.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          totalPrice: { $sum: '$price' },
+          totalItem: { $sum: 1 },
+        },
+      },
+      { $limit: 30 },
+    ]);
+    return product;
+  }
+
+  // 2) დაამატეთ ახალი ენდფოინთი იქსფენსებზე მაგალითად /statistic და
+  // დააბრნეთ კატეგორიის მიხედვით დაჯგუფებული ხარჯები,
+  //  პლუს დათვალეთ იმ კატეგორიაში რამდენი იყო სრული ხარჯი,
+  // რამდენი აითემია თითოეულ ხარჯის კატეგორიაში,
+  //  და ლექციაზე როგორც ვქენით მასივის სახით ჩანდეს ეს ხარჯები.
+
   async getExpenseById(id) {
     if (!isValidObjectId(id)) {
       throw new HttpException('Expense ID provided', HttpStatus.BAD_REQUEST);

@@ -48,6 +48,33 @@ let ExpenseService = class ExpenseService {
             page,
         };
     }
+    async topSpenders(limit) {
+        const product = await this.expenseModel.aggregate([
+            {
+                $group: {
+                    _id: '$userId',
+                    totalSpent: { $sum: '$price' },
+                    totalItemSpent: { $sum: 1 },
+                },
+            },
+            { $sort: { totalSpent: -1 } },
+            { $limit: limit },
+        ]);
+        return product;
+    }
+    async getExpenseByGroup() {
+        const product = await this.expenseModel.aggregate([
+            {
+                $group: {
+                    _id: '$category',
+                    totalPrice: { $sum: '$price' },
+                    totalItem: { $sum: 1 },
+                },
+            },
+            { $limit: 30 },
+        ]);
+        return product;
+    }
     async getExpenseById(id) {
         if (!(0, mongoose_2.isValidObjectId)(id)) {
             throw new common_1.HttpException('Expense ID provided', common_1.HttpStatus.BAD_REQUEST);

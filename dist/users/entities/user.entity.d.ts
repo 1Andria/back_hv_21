@@ -6,6 +6,8 @@ export declare class User {
     FirstName: string;
     LastName: string;
     phoneNumber: number;
+    age: number;
+    isActive: boolean;
     gender: string;
     stripeCustomerId: string;
     subscriptionStartDate: Date;

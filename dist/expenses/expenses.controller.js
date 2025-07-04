@@ -31,6 +31,13 @@ let ExpenseController = class ExpenseController {
         const priceTo = priceToRawQuery ? Number(priceToRawQuery) : undefined;
         return this.expenseService.getAllExpenses(page, take, priceFrom, priceTo, category);
     }
+    getByGroup() {
+        return this.expenseService.getExpenseByGroup();
+    }
+    topSpenders(limitFromQuery) {
+        const limit = limitFromQuery ? Number(limitFromQuery) : 30;
+        return this.expenseService.topSpenders(limit);
+    }
     getExpenseById(id) {
         return this.expenseService.getExpenseById(id);
     }
@@ -64,6 +71,19 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String, query_params_dto_1.QueryParamsDto]),
     __metadata("design:returntype", void 0)
 ], ExpenseController.prototype, "getAllExpenses", null);
+__decorate([
+    (0, common_1.Get)('statistic'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ExpenseController.prototype, "getByGroup", null);
+__decorate([
+    (0, common_1.Get)('top-spenders'),
+    __param(0, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ExpenseController.prototype, "topSpenders", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

@@ -46,6 +46,12 @@ let UsersService = class UsersService {
             page,
         };
     }
+    async getUserByGender() {
+        const users = await this.userModel.aggregate([
+            { $group: { _id: '$gender', averageAge: { $avg: '$age' } } },
+        ]);
+        return users;
+    }
     async getUserById(id) {
         if (!(0, mongoose_2.isValidObjectId)(id)) {
             throw new common_1.HttpException('Invalid ID provided', common_1.HttpStatus.BAD_REQUEST);
