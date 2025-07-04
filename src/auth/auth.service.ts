@@ -35,6 +35,7 @@ export class AuthService {
       FirstName,
       gender,
       LastName,
+      isActive: true,
       phoneNumber,
     });
 

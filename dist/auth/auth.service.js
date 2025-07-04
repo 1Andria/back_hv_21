@@ -37,6 +37,7 @@ let AuthService = class AuthService {
             FirstName,
             gender,
             LastName,
+            isActive: true,
             phoneNumber,
         });
         return { message: 'created successfully', newUser };
