@@ -7,7 +7,7 @@ export declare class AuthService {
     private readonly userModel;
     private jwtService;
     constructor(userModel: Model<User>, jwtService: JwtService);
-    signUp({ email, password, FirstName, LastName, gender, phoneNumber, }: signUpDto): Promise<{
+    signUp({ email, password, FirstName, LastName, gender, age, phoneNumber, }: signUpDto): Promise<{
         message: string;
         newUser: import("mongoose").Document<unknown, {}, User, {}> & User & {
             _id: import("mongoose").Types.ObjectId;

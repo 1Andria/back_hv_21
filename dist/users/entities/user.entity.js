@@ -78,12 +78,14 @@ __decorate([
     (0, mongoose_1.Prop)({
         type: Number,
         required: true,
+        default: 10,
     }),
     __metadata("design:type", Number)
 ], User.prototype, "age", void 0);
 __decorate([
     (0, mongoose_1.Prop)({
         type: Boolean,
+        default: true,
     }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isActive", void 0);

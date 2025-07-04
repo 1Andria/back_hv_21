@@ -45,11 +45,13 @@ export class User {
   @Prop({
     type: Number,
     required: true,
+    default: 10,
   })
   age: number;
 
   @Prop({
     type: Boolean,
+    default: true,
   })
   isActive: boolean;
 

@@ -25,7 +25,7 @@ let AuthService = class AuthService {
         this.userModel = userModel;
         this.jwtService = jwtService;
     }
-    async signUp({ email, password, FirstName, LastName, gender, phoneNumber, }) {
+    async signUp({ email, password, FirstName, LastName, gender, age, phoneNumber, }) {
         const existUser = await this.userModel.findOne({ email });
         if (existUser) {
             throw new common_1.BadRequestException('User already exists');
@@ -36,8 +36,8 @@ let AuthService = class AuthService {
             password: hashedPass,
             FirstName,
             gender,
+            age,
             LastName,
-            isActive: true,
             phoneNumber,
         });
         return { message: 'created successfully', newUser };

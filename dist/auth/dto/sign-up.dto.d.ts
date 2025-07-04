@@ -3,6 +3,7 @@ export declare class signUpDto {
     LastName: string;
     email: string;
     phoneNumber: number;
+    age: number;
     gender: string;
     password: string;
 }

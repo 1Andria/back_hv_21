@@ -16,6 +16,7 @@ class signUpDto {
     LastName;
     email;
     phoneNumber;
+    age;
     gender;
     password;
 }
@@ -41,6 +42,12 @@ __decorate([
     (0, class_validator_1.Min)(9),
     __metadata("design:type", Number)
 ], signUpDto.prototype, "phoneNumber", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], signUpDto.prototype, "age", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),

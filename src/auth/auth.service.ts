@@ -20,6 +20,7 @@ export class AuthService {
     FirstName,
     LastName,
     gender,
+    age,
     phoneNumber,
   }: signUpDto) {
     const existUser = await this.userModel.findOne({ email });
@@ -34,8 +35,8 @@ export class AuthService {
       password: hashedPass,
       FirstName,
       gender,
+      age,
       LastName,
-      isActive: true,
       phoneNumber,
     });
 
