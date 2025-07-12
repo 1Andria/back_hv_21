@@ -20,6 +20,7 @@ describe('UsersService', () => {
     populate: jest.fn(),
     findByIdAndDelete: jest.fn(),
     findByIdAndUpdate: jest.fn(),
+    countDocuments: jest.fn(),
   };
 
   const userMock = {
@@ -108,6 +109,65 @@ describe('UsersService', () => {
     });
   });
 
+  describe('getAllUsers', () => {
+    it('should return paginated list of users with  filters', async () => {
+      const page = 1;
+      const take = 10;
+      const gender = 'male';
+      const email = 'giorgi';
+      const skip = (page - 1) * take;
+      const mockUsers = [userMock];
+      const mockCount = 1;
+
+      const mockFind = {
+        populate: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockResolvedValue(mockUsers),
+      };
+
+      jest.spyOn(userModel, 'find').mockReturnValue(mockFind as any);
+      jest.spyOn(userModel, 'countDocuments').mockResolvedValue(mockCount);
+
+      const result = await userService.getAllUsers(page, take, gender, email);
+
+      expect(userModel.find).toHaveBeenCalledWith({
+        gender: { $regex: `^${gender}`, $options: 'i' },
+        email: { $regex: `^${email}`, $options: 'i' },
+      });
+
+      expect(result).toEqual({
+        data: mockUsers,
+        total: mockCount,
+        page,
+      });
+    });
+
+    it('should return all users when there is no filters', async () => {
+      const page = 1;
+      const take = 10;
+      const mockUsers = [userMock];
+      const mockCount = 1;
+
+      const mockFind = {
+        populate: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockResolvedValue(mockUsers),
+      };
+
+      jest.spyOn(userModel, 'find').mockReturnValue(mockFind as any);
+      jest.spyOn(userModel, 'countDocuments').mockResolvedValue(mockCount);
+
+      const result = await userService.getAllUsers(page, take, '', '');
+
+      expect(userModel.find).toHaveBeenCalledWith({});
+      expect(result).toEqual({
+        data: mockUsers,
+        total: mockCount,
+        page,
+      });
+    });
+  });
+
   describe('deleteUserById', () => {
     it('should throw error when wrong ID is provided', async () => {
       const invalidID = 'wrongID';
@@ -147,14 +207,16 @@ describe('UsersService', () => {
     });
 
     it('should return updated user with new subscription date when everything is correct', async () => {
-      const currentDate = new Date('2025-07-12');
+      const currentDate = new Date(Date.UTC(2025, 6, 12));
       const newEndDate = new Date(currentDate);
-      newEndDate.setMonth(newEndDate.getMonth() + 1);
-      newEndDate.setHours(0, 0, 0, 0);
+      newEndDate.setUTCMonth(newEndDate.getUTCMonth() + 1);
+      newEndDate.setUTCHours(0, 0, 0, 0);
+
       const mockUser = {
         ...userMock,
         subscriptionEndDate: currentDate,
       };
+
       jest.spyOn(userModel, 'findById').mockResolvedValue(mockUser);
       jest.spyOn(userModel, 'findByIdAndUpdate').mockResolvedValue({
         ...mockUser,
@@ -162,9 +224,11 @@ describe('UsersService', () => {
       } as any);
 
       const result = await userService.upgradeSubscription(mockUser._id);
+
       expect(result.message).toBe('Subscription upgraded successfully');
-      expect(new Date(result.newEndDate).toDateString()).toBe(
-        newEndDate.toDateString(),
+
+      expect(new Date(result.newEndDate).toISOString().split('T')[0]).toBe(
+        newEndDate.toISOString().split('T')[0],
       );
     });
   });
