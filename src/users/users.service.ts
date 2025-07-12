@@ -84,9 +84,6 @@ export class UsersService {
     return users;
   }
 
-  // 3) დაამატეთ ახალი ენფოინთი იუზერებზე, დააჯგუფეთ ყველა იუზერი სქესის მიხედვით და
-  //  გამოთვალეთ საშუალო ასაკი ორივეში.
-
   async getUserById(id: string) {
     if (!isValidObjectId(id)) {
       throw new HttpException('Invalid ID provided', HttpStatus.BAD_REQUEST);
@@ -111,7 +108,7 @@ export class UsersService {
       throw new NotFoundException('user not found');
     }
 
-    return 'Deleted successfully';
+    return deletedUser;
   }
 
   async updateUserById(
@@ -137,7 +134,7 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    return 'Updated successfully';
+    return updatedUser;
   }
 
   findUserByEmail(email: string) {
@@ -161,7 +158,7 @@ export class UsersService {
     const newEndDate = new Date(upgradeStart);
     newEndDate.setMonth(newEndDate.getMonth() + 1);
 
-    await this.userModel.findByIdAndUpdate(id, {
+    const updatedUserWithSubDate = await this.userModel.findByIdAndUpdate(id, {
       subscriptionEndDate: newEndDate,
     });
 

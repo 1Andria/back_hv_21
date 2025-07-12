@@ -10,6 +10,7 @@ import { ProductsModule } from './products/products.module';
 import { AuthModule } from './auth/auth.module';
 import { InfoMiddleware } from './common/middlewares/info.middleware';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AsdasdModule } from './asdasd/asdasd.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     ProductsModule,
     AuthModule,
     AnalyticsModule,
+    AsdasdModule,
   ],
   controllers: [AppController],
   providers: [AppService],
