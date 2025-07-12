@@ -228,4 +228,53 @@ describe('ExpenseSerivce', () => {
       expect(result).toBe('Deleted successfully');
     });
   });
+
+  describe('createExpense', () => {
+    const userId = '12345678901234567890aaab';
+    const expenseId = '12345678901234567890aaac';
+
+    const createDto = {
+      category: 'asdasd',
+      productName: 'asdasd',
+      quantity: 233,
+      price: 10123,
+    };
+
+    const mockUser = {
+      _id: userId,
+      expenses: [],
+    };
+
+    const mockCreatedExpense = {
+      _id: expenseId,
+      ...createDto,
+      totalPrice: createDto.quantity * createDto.price,
+      userId,
+    };
+
+    it('should throw BadRequestException if user not found', async () => {
+      jest.spyOn(userModel, 'findById').mockResolvedValue(null);
+
+      await expect(
+        expenseService.createExpense(createDto, userId),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should create expense and update user with new expense', async () => {
+      jest.spyOn(userModel, 'findById').mockResolvedValue(mockUser);
+      jest
+        .spyOn(expenseModel, 'create')
+        .mockResolvedValue(mockCreatedExpense as any);
+      const updateUserSpy = jest
+        .spyOn(userModel, 'findByIdAndUpdate')
+        .mockResolvedValue({} as any);
+
+      const result = await expenseService.createExpense(createDto, userId);
+
+      expect(result).toEqual({ success: 'ok', data: mockCreatedExpense });
+      expect(updateUserSpy).toHaveBeenCalledWith(userId, {
+        $push: { expenses: expenseId },
+      });
+    });
+  });
 });

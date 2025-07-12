@@ -97,7 +97,7 @@ describe('AuthService', () => {
   describe('signIn', () => {
     const mockSignInDto = {
       email: 'test@example.com',
-      password: 'securePass123',
+      password: 'pass123',
     };
 
     it('should throw error if user does not exist', async () => {
