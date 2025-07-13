@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 export declare class User {
     email: string;
+    profilePicture: string;
     role: string;
     password: string;
     FirstName: string;

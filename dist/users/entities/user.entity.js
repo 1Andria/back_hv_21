@@ -14,6 +14,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 let User = class User {
     email;
+    profilePicture;
     role;
     password;
     FirstName;
@@ -38,6 +39,13 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({
+        type: String,
+        default: 'has not profile picture yet',
+    }),
+    __metadata("design:type", String)
+], User.prototype, "profilePicture", void 0);
 __decorate([
     (0, mongoose_1.Prop)({
         type: String,

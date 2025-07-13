@@ -14,12 +14,14 @@ const users_module_1 = require("../users/users.module");
 const mongoose_1 = require("@nestjs/mongoose");
 const product_schema_1 = require("./schema/product.schema");
 const user_entity_1 = require("../users/entities/user.entity");
+const aws_module_1 = require("../aws/aws.module");
 let ProductsModule = class ProductsModule {
 };
 exports.ProductsModule = ProductsModule;
 exports.ProductsModule = ProductsModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            aws_module_1.AwsModule,
             mongoose_1.MongooseModule.forFeature([
                 { schema: product_schema_1.productSchema, name: 'product' },
                 { schema: user_entity_1.userSchema, name: 'user' },

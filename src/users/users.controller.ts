@@ -5,19 +5,21 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dtp';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUserParamDto } from './dto/query-params.dto';
 import { GenderPipe } from './pipes/gender.pipe';
-import { UpgradeSubscriptionDto } from './dto/endDate-user.dto';
 import { IsAuthGuard } from 'src/common/guards/isAuth.guard';
 import { UserId } from './decorators/user.decorator';
 import { ChangeUserRoleDto } from './dto/changeUserRole.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
@@ -38,6 +40,16 @@ export class UsersController {
     return this.usersService.getUserByGender();
   }
 
+  @Post('profile-picture')
+  @UseGuards(IsAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @UserId() userId: string,
+  ) {
+    return this.usersService.createProfPicture(file, userId);
+  }
+
   @Get(':id')
   getUserById(@Param('id') id) {
     return this.usersService.getUserById(id);
@@ -46,6 +58,16 @@ export class UsersController {
   @Delete(':id')
   deleteUserById(@Param('id') id) {
     return this.usersService.deleteUserById(id);
+  }
+
+  @Patch('/change-profile-picture')
+  @UseGuards(IsAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  changeProfPicture(
+    @UserId() userId,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.changeProfilePicture(file, userId);
   }
 
   @Patch('/change-role')

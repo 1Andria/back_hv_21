@@ -19,6 +19,7 @@ const products_module_1 = require("./products/products.module");
 const auth_module_1 = require("./auth/auth.module");
 const info_middleware_1 = require("./common/middlewares/info.middleware");
 const analytics_module_1 = require("./analytics/analytics.module");
+const aws_module_1 = require("./aws/aws.module");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(info_middleware_1.InfoMiddleware).forRoutes('*');
@@ -36,6 +37,7 @@ exports.AppModule = AppModule = __decorate([
             products_module_1.ProductsModule,
             auth_module_1.AuthModule,
             analytics_module_1.AnalyticsModule,
+            aws_module_1.AwsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

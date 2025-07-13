@@ -9,12 +9,15 @@ import {
   Req,
   UseGuards,
   Headers,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { IsEmailActiveGuard } from 'src/common/guards/isEmailActive.guard';
 import { HasUserId } from 'src/common/guards/has-user-id.guard';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
@@ -22,11 +25,13 @@ export class ProductsController {
 
   @Post()
   @UseGuards(new HasUserId())
+  @UseInterceptors(FilesInterceptor('files'))
   create(
     @Headers('user-id') userId: string,
     @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.productsService.create(createProductDto, userId);
+    return this.productsService.create(createProductDto, userId, files);
   }
 
   @Get()
@@ -52,6 +57,11 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return this.productsService.update(id, updateProductDto, userId);
+  }
+
+  @Delete('file')
+  deleteFile(@Body('fileId') fileId: string) {
+    return this.productsService.deleteFileById(fileId);
   }
 
   @Delete(':id')

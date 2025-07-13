@@ -18,6 +18,7 @@ let Product = class Product {
     description;
     category;
     quantity;
+    imagesArr;
     owner;
 };
 exports.Product = Product;
@@ -41,6 +42,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: Number, required: true }),
     __metadata("design:type", Number)
 ], Product.prototype, "quantity", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Product.prototype, "imagesArr", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'user', required: true }),
     __metadata("design:type", mongoose_2.default.Types.ObjectId)

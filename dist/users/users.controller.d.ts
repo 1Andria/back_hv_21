@@ -15,14 +15,40 @@ export declare class UsersController {
         page: number;
     }>;
     getUserByGender(): Promise<any[]>;
+    uploadFile(file: Express.Multer.File, userId: string): Promise<{
+        message: string;
+        user: (import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
+            _id: import("mongoose").Types.ObjectId;
+        } & {
+            __v: number;
+        }) | null;
+        profilePicture: string;
+    }>;
     getUserById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
         _id: import("mongoose").Types.ObjectId;
     } & {
         __v: number;
     }>;
-    deleteUserById(id: any): Promise<string>;
+    deleteUserById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }>;
+    changeProfPicture(userId: any, file: Express.Multer.File): Promise<{
+        message: string;
+        user: (import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
+            _id: import("mongoose").Types.ObjectId;
+        } & {
+            __v: number;
+        }) | null;
+        profilePicture: string;
+    }>;
     changeUserRole(userId: any, changeUserRoleDto: ChangeUserRoleDto): Promise<string>;
-    updateUserById(id: any, updateUserDto: UpdateUserDto): Promise<string>;
+    updateUserById(id: any, updateUserDto: UpdateUserDto): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }>;
     upgradeSubscription(id: any): Promise<{
         message: string;
         newEndDate: Date;

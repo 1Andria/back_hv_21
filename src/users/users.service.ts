@@ -12,10 +12,15 @@ import { isValidObjectId, Model } from 'mongoose';
 import { User } from './entities/user.entity';
 import { ChangeUserRoleDto } from './dto/changeUserRole.dto';
 import { faker } from '@faker-js/faker';
+import { v4 as uuidv4 } from 'uuid';
+import { AwsService } from 'src/aws/aws.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('user') private readonly userModel: Model<User>) {}
+  constructor(
+    @InjectModel('user') private readonly userModel: Model<User>,
+    private awsService: AwsService,
+  ) {}
 
   // async onModuleInit() {
   //   const oneWeekAgo = new Date();
@@ -74,6 +79,57 @@ export class UsersService {
       data,
       total,
       page,
+    };
+  }
+
+  async changeProfilePicture(file: Express.Multer.File, userId: string) {
+    if (!file) throw new BadRequestException('No file uploaded');
+    //აქ მერე დავუწერ რო თუ fileის გარეშე დაარექუესტებს default ფოტო დაუყენდება
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+
+    if (
+      user.profilePicture &&
+      user.profilePicture !== 'has not profile picture yet'
+    ) {
+      await this.awsService.deleteFileById(user.profilePicture);
+    }
+
+    const fileType = file.mimetype.split('/')[1];
+    const fileId = `${uuidv4()}.${fileType}`;
+    await this.awsService.uploadFile(fileId, file);
+
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      userId,
+      { profilePicture: fileId },
+      { new: true },
+    );
+
+    return {
+      message: 'Profile picture updated',
+      user: updatedUser,
+      profilePicture: `${process.env.CLOUD_FRONT_URL}/${fileId}`,
+    };
+  }
+
+  async createProfPicture(file: Express.Multer.File, userId: string) {
+    if (!file) throw new BadRequestException('No file uploaded');
+
+    const fileType = file.mimetype.split('/')[1];
+    const fileId = `${uuidv4()}.${fileType}`;
+
+    await this.awsService.uploadFile(fileId, file);
+
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      userId,
+      { profilePicture: fileId },
+      { new: true },
+    );
+
+    return {
+      message: 'Profile picture updated',
+      user: updatedUser,
+      profilePicture: `${process.env.CLOUD_FRONT_URL}/${fileId}`,
     };
   }
 

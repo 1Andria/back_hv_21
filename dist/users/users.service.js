@@ -16,10 +16,14 @@ exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const uuid_1 = require("uuid");
+const aws_service_1 = require("../aws/aws.service");
 let UsersService = class UsersService {
     userModel;
-    constructor(userModel) {
+    awsService;
+    constructor(userModel, awsService) {
         this.userModel = userModel;
+        this.awsService = awsService;
     }
     async getAllUsers(page, take, gender, email) {
         console.log(this.userModel);
@@ -44,6 +48,39 @@ let UsersService = class UsersService {
             data,
             total,
             page,
+        };
+    }
+    async changeProfilePicture(file, userId) {
+        if (!file)
+            throw new common_1.BadRequestException('No file uploaded');
+        const user = await this.userModel.findById(userId);
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        if (user.profilePicture &&
+            user.profilePicture !== 'has not profile picture yet') {
+            await this.awsService.deleteFileById(user.profilePicture);
+        }
+        const fileType = file.mimetype.split('/')[1];
+        const fileId = `${(0, uuid_1.v4)()}.${fileType}`;
+        await this.awsService.uploadFile(fileId, file);
+        const updatedUser = await this.userModel.findByIdAndUpdate(userId, { profilePicture: fileId }, { new: true });
+        return {
+            message: 'Profile picture updated',
+            user: updatedUser,
+            profilePicture: `${process.env.CLOUD_FRONT_URL}/${fileId}`,
+        };
+    }
+    async createProfPicture(file, userId) {
+        if (!file)
+            throw new common_1.BadRequestException('No file uploaded');
+        const fileType = file.mimetype.split('/')[1];
+        const fileId = `${(0, uuid_1.v4)()}.${fileType}`;
+        await this.awsService.uploadFile(fileId, file);
+        const updatedUser = await this.userModel.findByIdAndUpdate(userId, { profilePicture: fileId }, { new: true });
+        return {
+            message: 'Profile picture updated',
+            user: updatedUser,
+            profilePicture: `${process.env.CLOUD_FRONT_URL}/${fileId}`,
         };
     }
     async getUserByGender() {
@@ -73,7 +110,7 @@ let UsersService = class UsersService {
         if (!deletedUser) {
             throw new common_1.NotFoundException('user not found');
         }
-        return 'Deleted successfully';
+        return deletedUser;
     }
     async updateUserById(id, { FirstName, LastName, email, gender, phoneNumber }) {
         if (!(0, mongoose_2.isValidObjectId)(id)) {
@@ -96,7 +133,7 @@ let UsersService = class UsersService {
         if (!updatedUser) {
             throw new common_1.NotFoundException('User not found');
         }
-        return 'Updated successfully';
+        return updatedUser;
     }
     findUserByEmail(email) {
         return this.userModel.findOne({ email });
@@ -114,7 +151,7 @@ let UsersService = class UsersService {
         const upgradeStart = currentEndDate > now ? currentEndDate : now;
         const newEndDate = new Date(upgradeStart);
         newEndDate.setMonth(newEndDate.getMonth() + 1);
-        await this.userModel.findByIdAndUpdate(id, {
+        const updatedUserWithSubDate = await this.userModel.findByIdAndUpdate(id, {
             subscriptionEndDate: newEndDate,
         });
         return {
@@ -142,6 +179,7 @@ exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)('user')),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        aws_service_1.AwsService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

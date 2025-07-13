@@ -18,6 +18,9 @@ export class Product {
   @Prop({ type: Number, required: true })
   quantity: number;
 
+  @Prop({ type: [String], default: [] })
+  imagesArr: string[];
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true })
   owner: mongoose.Types.ObjectId;
 }

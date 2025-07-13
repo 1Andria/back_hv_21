@@ -4,30 +4,21 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export declare class ProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
-    create(userId: string, createProductDto: CreateProductDto): Promise<{
+    create(userId: string, createProductDto: CreateProductDto, files: Express.Multer.File[]): Promise<{
         success: string;
-        data: import("mongoose").Document<unknown, {}, import("./schema/product.schema").Product, {}> & import("./schema/product.schema").Product & {
+        data: {
+            imagesArr: string[];
+            price: number;
+            name: string;
+            description: string;
+            category: string;
+            quantity: number;
+            owner: import("mongoose").Types.ObjectId;
             _id: import("mongoose").Types.ObjectId;
-        } & {
             __v: number;
         };
     }>;
-    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./schema/product.schema").Product, {}> & import("./schema/product.schema").Product & {
-        _id: import("mongoose").Types.ObjectId;
-    } & {
-        __v: number;
-    })[] | {
-        price: number;
-        discount: string;
-        name: string;
-        description: string;
-        category: string;
-        quantity: number;
-        owner: import("mongoose").Types.ObjectId;
-        _id: import("mongoose").Types.ObjectId;
-        __v: number;
-    }[]>;
-    findOne(id: string, req: any): Promise<(import("mongoose").Document<unknown, {}, import("./schema/product.schema").Product, {}> & import("./schema/product.schema").Product & {
+    findAll(req: any): Promise<((import("./schema/product.schema").Product & {
         _id: import("mongoose").Types.ObjectId;
     } & {
         __v: number;
@@ -38,6 +29,23 @@ export declare class ProductsController {
         description: string;
         category: string;
         quantity: number;
+        imagesArr: string[];
+        owner: import("mongoose").Types.ObjectId;
+        _id: import("mongoose").Types.ObjectId;
+        __v: number;
+    })[]>;
+    findOne(id: string, req: any): Promise<(import("./schema/product.schema").Product & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }) | {
+        price: number;
+        discount: string;
+        name: string;
+        description: string;
+        category: string;
+        quantity: number;
+        imagesArr: string[];
         owner: import("mongoose").Types.ObjectId;
         _id: import("mongoose").Types.ObjectId;
         __v: number;
@@ -50,5 +58,6 @@ export declare class ProductsController {
             __v: number;
         }) | null;
     }>;
+    deleteFile(fileId: string): Promise<string>;
     remove(userId: string, id: string): Promise<string>;
 }

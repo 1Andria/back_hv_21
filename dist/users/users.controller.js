@@ -21,6 +21,7 @@ const gender_pipe_1 = require("./pipes/gender.pipe");
 const isAuth_guard_1 = require("../common/guards/isAuth.guard");
 const user_decorator_1 = require("./decorators/user.decorator");
 const changeUserRole_dto_1 = require("./dto/changeUserRole.dto");
+const platform_express_1 = require("@nestjs/platform-express");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -32,11 +33,17 @@ let UsersController = class UsersController {
     getUserByGender() {
         return this.usersService.getUserByGender();
     }
+    uploadFile(file, userId) {
+        return this.usersService.createProfPicture(file, userId);
+    }
     getUserById(id) {
         return this.usersService.getUserById(id);
     }
     deleteUserById(id) {
         return this.usersService.deleteUserById(id);
+    }
+    changeProfPicture(userId, file) {
+        return this.usersService.changeProfilePicture(file, userId);
     }
     changeUserRole(userId, changeUserRoleDto) {
         return this.usersService.changeUserRole(userId, changeUserRoleDto);
@@ -65,6 +72,16 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getUserByGender", null);
 __decorate([
+    (0, common_1.Post)('profile-picture'),
+    (0, common_1.UseGuards)(isAuth_guard_1.IsAuthGuard),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.UploadedFile)()),
+    __param(1, (0, user_decorator_1.UserId)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "uploadFile", null);
+__decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -78,6 +95,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "deleteUserById", null);
+__decorate([
+    (0, common_1.Patch)('/change-profile-picture'),
+    (0, common_1.UseGuards)(isAuth_guard_1.IsAuthGuard),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, user_decorator_1.UserId)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "changeProfPicture", null);
 __decorate([
     (0, common_1.Patch)('/change-role'),
     (0, common_1.UseGuards)(isAuth_guard_1.IsAuthGuard),

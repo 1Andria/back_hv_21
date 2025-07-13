@@ -14,6 +14,9 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
   app.use('/stripe/webhook', express.raw({ type: 'application/json' }));

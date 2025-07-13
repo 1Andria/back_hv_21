@@ -13,6 +13,9 @@ async function bootstrap() {
         transform: true,
         whitelist: true,
         forbidNonWhitelisted: true,
+        transformOptions: {
+            enableImplicitConversion: true,
+        },
     }));
     app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
     await app.listen(process.env.PORT ?? 3005);

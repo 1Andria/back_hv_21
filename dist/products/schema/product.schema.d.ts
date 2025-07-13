@@ -5,6 +5,7 @@ export declare class Product {
     description: string;
     category: string;
     quantity: number;
+    imagesArr: string[];
     owner: mongoose.Types.ObjectId;
 }
 export declare const productSchema: mongoose.Schema<Product, mongoose.Model<Product, any, any, any, mongoose.Document<unknown, any, Product, any> & Product & {

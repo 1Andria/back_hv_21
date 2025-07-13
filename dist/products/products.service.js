@@ -16,18 +16,36 @@ exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const aws_service_1 = require("../aws/aws.service");
+const uuid_1 = require("uuid");
 let ProductsService = class ProductsService {
     productModel;
     userModel;
-    constructor(productModel, userModel) {
+    awsService;
+    constructor(productModel, userModel, awsService) {
         this.productModel = productModel;
         this.userModel = userModel;
+        this.awsService = awsService;
     }
-    async create({ category, description, name, price, quantity }, userId) {
+    async uploadFiles(files) {
+        const uploadFileIds = [];
+        for (let file of files) {
+            const fileType = file.mimetype.split('/')[1];
+            const fileId = `${(0, uuid_1.v4)()}.${fileType}`;
+            await this.awsService.uploadFile(fileId, file);
+            uploadFileIds.push(fileId);
+        }
+        return uploadFileIds;
+    }
+    async create({ category, description, name, price, quantity }, userId, files) {
         const existUser = await this.userModel.findById(userId);
         if (!existUser) {
             throw new common_1.BadRequestException('User not found');
         }
+        if (!files || files.length === 0) {
+            throw new common_1.BadRequestException('Image is required');
+        }
+        const imageFileIds = await this.uploadFiles(files);
         const newProduct = await this.productModel.create({
             category,
             description,
@@ -35,25 +53,37 @@ let ProductsService = class ProductsService {
             price,
             quantity,
             owner: existUser._id,
+            imagesArr: imageFileIds,
         });
         await this.userModel.findByIdAndUpdate(existUser._id, {
             $push: { products: newProduct._id },
         });
-        return { success: 'ok', data: newProduct };
+        return {
+            success: 'ok',
+            data: {
+                ...newProduct.toObject(),
+                imagesArr: imageFileIds.map((fileId) => `${process.env.CLOUD_FRONT_URL}/${fileId}`),
+            },
+        };
     }
     async findAll(subscriptionActive) {
-        console.log(subscriptionActive);
         const products = await this.productModel
             .find()
             .populate({ path: 'owner', select: 'FirstName email' });
-        if (subscriptionActive) {
-            return products.map((product) => ({
-                ...product.toObject(),
-                price: product.price / 2,
-                discount: 'congrats u have discount',
-            }));
-        }
-        return products;
+        return products.map((product) => {
+            const productObj = product.toObject();
+            if (productObj.imagesArr && productObj.imagesArr.length > 0) {
+                productObj.imagesArr = productObj.imagesArr.map((fileId) => `${process.env.CLOUD_FRONT_URL}/${fileId}`);
+            }
+            if (subscriptionActive) {
+                return {
+                    ...productObj,
+                    price: productObj.price / 2,
+                    discount: 'congrats u have discount',
+                };
+            }
+            return productObj;
+        });
     }
     async findOne(id, subscriptionActive) {
         if (!(0, mongoose_2.isValidObjectId)(id)) {
@@ -65,14 +95,18 @@ let ProductsService = class ProductsService {
         if (!product) {
             throw new common_1.NotFoundException('Product not found');
         }
+        const productObj = product.toObject();
+        if (productObj.imagesArr && productObj.imagesArr.length > 0) {
+            productObj.imagesArr = productObj.imagesArr.map((fileId) => `${process.env.CLOUD_FRONT_URL}/${fileId}`);
+        }
         if (subscriptionActive) {
             return {
-                ...product.toObject(),
-                price: product.price / 2,
+                ...productObj,
+                price: productObj.price / 2,
                 discount: 'congrats u have discount',
             };
         }
-        return product;
+        return productObj;
     }
     async update(id, updateProductDto, userId) {
         const existProduct = await this.productModel.findById(id);
@@ -104,6 +138,11 @@ let ProductsService = class ProductsService {
             product: updatedProduct,
         };
     }
+    deleteFileById(fileId) {
+        if (!fileId)
+            throw new common_1.BadRequestException('FileId is required');
+        return this.awsService.deleteFileById(fileId);
+    }
     async remove(id, userId) {
         const product = await this.productModel.findById(id);
         if (!product) {
@@ -113,6 +152,9 @@ let ProductsService = class ProductsService {
             throw new common_1.BadRequestException('It is not your product');
         }
         await this.productModel.findByIdAndDelete(id);
+        if (product.imagesArr && product.imagesArr.length > 0) {
+            await Promise.all(product.imagesArr.map((fileId) => this.awsService.deleteFileById(fileId)));
+        }
         await this.userModel.findByIdAndUpdate(userId, {
             $pull: { products: new mongoose_2.Types.ObjectId(id) },
         });
@@ -125,6 +167,7 @@ exports.ProductsService = ProductsService = __decorate([
     __param(0, (0, mongoose_1.InjectModel)('product')),
     __param(1, (0, mongoose_1.InjectModel)('user')),
     __metadata("design:paramtypes", [mongoose_2.Model,
-        mongoose_2.Model])
+        mongoose_2.Model,
+        aws_service_1.AwsService])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

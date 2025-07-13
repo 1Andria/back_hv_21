@@ -5,9 +5,11 @@ import { UserModule } from 'src/users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { productSchema } from './schema/product.schema';
 import { userSchema } from 'src/users/entities/user.entity';
+import { AwsModule } from 'src/aws/aws.module';
 
 @Module({
   imports: [
+    AwsModule,
     MongooseModule.forFeature([
       { schema: productSchema, name: 'product' },
       { schema: userSchema, name: 'user' },

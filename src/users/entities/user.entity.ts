@@ -13,6 +13,12 @@ export class User {
 
   @Prop({
     type: String,
+    default: 'has not profile picture yet',
+  })
+  profilePicture: string;
+
+  @Prop({
+    type: String,
     default: 'user',
   })
   role: string;
