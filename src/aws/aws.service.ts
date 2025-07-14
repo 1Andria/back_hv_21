@@ -27,7 +27,7 @@ export class AwsService {
       Key: fileId,
       Body: file.buffer,
       Bucket: this.bucketName,
-      ContentType: file.mimeType,
+      ContentType: file.mimetype,
     };
     const uploadCommand = new PutObjectCommand(config);
     await this.s3.send(uploadCommand);

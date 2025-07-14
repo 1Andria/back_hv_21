@@ -118,6 +118,7 @@ export class UsersService {
     if (user.profilePicture === 'has not profile picture')
       throw new BadRequestException('U dont have profile picture');
     this.awsService.deleteFileById(user.profilePicture);
+    //აქ defaultად მერე მივცემ ფოტოს ლინკს რომელიც იქნება როცა არ ექნება პროფილის ფოტო
     await this.userModel.updateOne(
       { _id: userId },
       {

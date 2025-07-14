@@ -32,7 +32,7 @@ let AwsService = class AwsService {
             Key: fileId,
             Body: file.buffer,
             Bucket: this.bucketName,
-            ContentType: file.mimeType,
+            ContentType: file.mimetype,
         };
         const uploadCommand = new client_s3_1.PutObjectCommand(config);
         await this.s3.send(uploadCommand);
