@@ -57,7 +57,7 @@ let UsersService = class UsersService {
         if (!user)
             throw new common_1.NotFoundException('User not found');
         if (user.profilePicture &&
-            user.profilePicture !== 'has not profile picture yet') {
+            user.profilePicture !== 'has not profile picture') {
             await this.awsService.deleteFileById(user.profilePicture);
         }
         const fileType = file.mimetype.split('/')[1];
@@ -69,6 +69,18 @@ let UsersService = class UsersService {
             user: updatedUser,
             profilePicture: `${process.env.CLOUD_FRONT_URL}/${fileId}`,
         };
+    }
+    async deleteProfilePicture(userId) {
+        const user = await this.userModel.findById(userId);
+        if (!user)
+            throw new common_1.BadRequestException('User not found');
+        if (user.profilePicture === 'has not profile picture')
+            throw new common_1.BadRequestException('U dont have profile picture');
+        this.awsService.deleteFileById(user.profilePicture);
+        await this.userModel.updateOne({ _id: userId }, {
+            profilePicture: 'has not profile picture',
+        });
+        return 'Profile picture deleted successfuly';
     }
     async createProfPicture(file, userId) {
         if (!file)

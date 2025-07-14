@@ -42,7 +42,7 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({
         type: String,
-        default: 'has not profile picture yet',
+        default: 'has not profile picture',
     }),
     __metadata("design:type", String)
 ], User.prototype, "profilePicture", void 0);

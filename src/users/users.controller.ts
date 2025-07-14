@@ -40,6 +40,11 @@ export class UsersController {
     return this.usersService.getUserByGender();
   }
 
+  @Get(':id')
+  getUserById(@Param('id') id) {
+    return this.usersService.getUserById(id);
+  }
+
   @Post('profile-picture')
   @UseGuards(IsAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
@@ -48,16 +53,6 @@ export class UsersController {
     @UserId() userId: string,
   ) {
     return this.usersService.createProfPicture(file, userId);
-  }
-
-  @Get(':id')
-  getUserById(@Param('id') id) {
-    return this.usersService.getUserById(id);
-  }
-
-  @Delete(':id')
-  deleteUserById(@Param('id') id) {
-    return this.usersService.deleteUserById(id);
   }
 
   @Patch('/change-profile-picture')
@@ -87,5 +82,16 @@ export class UsersController {
   @Put('/upgrade-subscription/:id')
   upgradeSubscription(@Param('id') id) {
     return this.usersService.upgradeSubscription(id);
+  }
+
+  @Delete(':id')
+  deleteUserById(@Param('id') id) {
+    return this.usersService.deleteUserById(id);
+  }
+
+  @Delete('remove-profile-picture')
+  @UseGuards(IsAuthGuard)
+  deleteProfilePicture(@UserId() userId) {
+    return this.usersService.deleteProfilePicture(userId);
   }
 }

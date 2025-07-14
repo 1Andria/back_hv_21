@@ -90,7 +90,7 @@ export class UsersService {
 
     if (
       user.profilePicture &&
-      user.profilePicture !== 'has not profile picture yet'
+      user.profilePicture !== 'has not profile picture'
     ) {
       await this.awsService.deleteFileById(user.profilePicture);
     }
@@ -110,6 +110,22 @@ export class UsersService {
       user: updatedUser,
       profilePicture: `${process.env.CLOUD_FRONT_URL}/${fileId}`,
     };
+  }
+
+  async deleteProfilePicture(userId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new BadRequestException('User not found');
+    if (user.profilePicture === 'has not profile picture')
+      throw new BadRequestException('U dont have profile picture');
+    this.awsService.deleteFileById(user.profilePicture);
+    await this.userModel.updateOne(
+      { _id: userId },
+      {
+        profilePicture: 'has not profile picture',
+      },
+    );
+
+    return 'Profile picture deleted successfuly';
   }
 
   async createProfPicture(file: Express.Multer.File, userId: string) {

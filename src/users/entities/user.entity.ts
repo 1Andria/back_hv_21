@@ -13,7 +13,7 @@ export class User {
 
   @Prop({
     type: String,
-    default: 'has not profile picture yet',
+    default: 'has not profile picture',
   })
   profilePicture: string;
 

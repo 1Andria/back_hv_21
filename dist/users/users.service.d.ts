@@ -25,6 +25,7 @@ export declare class UsersService {
         }) | null;
         profilePicture: string;
     }>;
+    deleteProfilePicture(userId: string): Promise<string>;
     createProfPicture(file: Express.Multer.File, userId: string): Promise<{
         message: string;
         user: (import("mongoose").Document<unknown, {}, User, {}> & User & {

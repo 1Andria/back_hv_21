@@ -15,6 +15,11 @@ export declare class UsersController {
         page: number;
     }>;
     getUserByGender(): Promise<any[]>;
+    getUserById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }>;
     uploadFile(file: Express.Multer.File, userId: string): Promise<{
         message: string;
         user: (import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
@@ -23,16 +28,6 @@ export declare class UsersController {
             __v: number;
         }) | null;
         profilePicture: string;
-    }>;
-    getUserById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
-        _id: import("mongoose").Types.ObjectId;
-    } & {
-        __v: number;
-    }>;
-    deleteUserById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
-        _id: import("mongoose").Types.ObjectId;
-    } & {
-        __v: number;
     }>;
     changeProfPicture(userId: any, file: Express.Multer.File): Promise<{
         message: string;
@@ -53,4 +48,10 @@ export declare class UsersController {
         message: string;
         newEndDate: Date;
     }>;
+    deleteUserById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }>;
+    deleteProfilePicture(userId: any): Promise<string>;
 }

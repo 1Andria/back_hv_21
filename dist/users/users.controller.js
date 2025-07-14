@@ -33,14 +33,11 @@ let UsersController = class UsersController {
     getUserByGender() {
         return this.usersService.getUserByGender();
     }
-    uploadFile(file, userId) {
-        return this.usersService.createProfPicture(file, userId);
-    }
     getUserById(id) {
         return this.usersService.getUserById(id);
     }
-    deleteUserById(id) {
-        return this.usersService.deleteUserById(id);
+    uploadFile(file, userId) {
+        return this.usersService.createProfPicture(file, userId);
     }
     changeProfPicture(userId, file) {
         return this.usersService.changeProfilePicture(file, userId);
@@ -53,6 +50,12 @@ let UsersController = class UsersController {
     }
     upgradeSubscription(id) {
         return this.usersService.upgradeSubscription(id);
+    }
+    deleteUserById(id) {
+        return this.usersService.deleteUserById(id);
+    }
+    deleteProfilePicture(userId) {
+        return this.usersService.deleteProfilePicture(userId);
     }
 };
 exports.UsersController = UsersController;
@@ -72,6 +75,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getUserByGender", null);
 __decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "getUserById", null);
+__decorate([
     (0, common_1.Post)('profile-picture'),
     (0, common_1.UseGuards)(isAuth_guard_1.IsAuthGuard),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
@@ -81,20 +91,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "uploadFile", null);
-__decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], UsersController.prototype, "getUserById", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], UsersController.prototype, "deleteUserById", null);
 __decorate([
     (0, common_1.Patch)('/change-profile-picture'),
     (0, common_1.UseGuards)(isAuth_guard_1.IsAuthGuard),
@@ -129,6 +125,21 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "upgradeSubscription", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "deleteUserById", null);
+__decorate([
+    (0, common_1.Delete)('remove-profile-picture'),
+    (0, common_1.UseGuards)(isAuth_guard_1.IsAuthGuard),
+    __param(0, (0, user_decorator_1.UserId)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "deleteProfilePicture", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])
