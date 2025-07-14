@@ -84,14 +84,14 @@ export class UsersController {
     return this.usersService.upgradeSubscription(id);
   }
 
-  @Delete(':id')
-  deleteUserById(@Param('id') id) {
-    return this.usersService.deleteUserById(id);
-  }
-
   @Delete('remove-profile-picture')
   @UseGuards(IsAuthGuard)
   deleteProfilePicture(@UserId() userId) {
     return this.usersService.deleteProfilePicture(userId);
+  }
+
+  @Delete(':id')
+  deleteUserById(@Param('id') id) {
+    return this.usersService.deleteUserById(id);
   }
 }

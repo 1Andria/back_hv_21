@@ -48,10 +48,10 @@ export declare class UsersController {
         message: string;
         newEndDate: Date;
     }>;
+    deleteProfilePicture(userId: any): Promise<string>;
     deleteUserById(id: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/user.entity").User, {}> & import("./entities/user.entity").User & {
         _id: import("mongoose").Types.ObjectId;
     } & {
         __v: number;
     }>;
-    deleteProfilePicture(userId: any): Promise<string>;
 }

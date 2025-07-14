@@ -51,11 +51,11 @@ let UsersController = class UsersController {
     upgradeSubscription(id) {
         return this.usersService.upgradeSubscription(id);
     }
-    deleteUserById(id) {
-        return this.usersService.deleteUserById(id);
-    }
     deleteProfilePicture(userId) {
         return this.usersService.deleteProfilePicture(userId);
+    }
+    deleteUserById(id) {
+        return this.usersService.deleteUserById(id);
     }
 };
 exports.UsersController = UsersController;
@@ -126,13 +126,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "upgradeSubscription", null);
 __decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], UsersController.prototype, "deleteUserById", null);
-__decorate([
     (0, common_1.Delete)('remove-profile-picture'),
     (0, common_1.UseGuards)(isAuth_guard_1.IsAuthGuard),
     __param(0, (0, user_decorator_1.UserId)()),
@@ -140,6 +133,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "deleteProfilePicture", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "deleteUserById", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])
